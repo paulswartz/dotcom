@@ -50,8 +50,7 @@ defmodule PredictedSchedule do
           sort_fn: sort_fn
         )
     end
-    |> Enum.reject(&PredictedSchedule.last_stop?/1)
-    |> Enum.reject(&(PredictedSchedule.time(&1) == nil))
+    |> Enum.reject(&PredictedSchedule.last_stop?(&1) || PredictedSchedule.time(&1) == nil)
   end
 
   @doc """
@@ -62,30 +61,36 @@ defmodule PredictedSchedule do
   """
   @spec group([Prediction.t()], [Schedule.t()], Keyword.t()) :: [PredictedSchedule.t()]
   def group(predictions, schedules, opts \\ []) do
-    schedule_map = create_map(schedules)
-    prediction_map = create_map(predictions)
+    map = Map.new(schedules, fn schedule ->
+      key = group_key(schedule)
+      {key, %PredictedSchedule{schedule: schedule}}
+    end)
+    map = Enum.reduce(predictions, map, fn prediction, map ->
+      key = group_key(prediction)
+      new_value =
+        case map do
+          %{^key => existing} ->
+            %{existing | prediction: prediction}
+        _ ->
+            %PredictedSchedule{prediction: prediction}
+        end
+      Map.put(map, key, new_value)
+    end)
+
     sort_fn = Keyword.get(opts, :sort_fn, &sort_predicted_schedules/1)
 
-    schedule_map
-    |> unique_map_keys(prediction_map)
-    |> Enum.map(fn key ->
-      %PredictedSchedule{schedule: schedule_map[key], prediction: prediction_map[key]}
-    end)
+    map
+    |> Map.values()
     |> Enum.sort_by(sort_fn)
   end
 
-  defp create_map(predictions_or_schedules) do
-    Map.new(predictions_or_schedules, &group_transform/1)
+  @spec group_key(Schedule.t() | Prediction.t()) :: {String.t(), String.t(), non_neg_integer}
+  defp group_key(%{trip: %{}} = ps) do
+    {ps.trip.id, ps.stop.id, ps.stop_sequence}
   end
 
-  @spec group_transform(Schedule.t() | Prediction.t()) ::
-          {{String.t(), String.t(), non_neg_integer}, Schedule.t() | Prediction.t()}
-  defp group_transform(%{trip: nil} = ps) do
-    {{ps.id, ps.stop.id, ps.stop_sequence}, ps}
-  end
-
-  defp group_transform(ps) do
-    {{ps.trip.id, ps.stop.id, ps.stop_sequence}, ps}
+  defp group_key(ps) do
+    {ps.id, ps.stop.id, ps.stop_sequence}
   end
 
   @doc """
@@ -255,15 +260,6 @@ defmodule PredictedSchedule do
 
   def is_schedule_after?(%PredictedSchedule{schedule: schedule}, time) do
     DateTime.compare(schedule.time, time) == :gt
-  end
-
-  # Returns unique list of all stop_id's from given schedules and predictions
-  @spec unique_map_keys(%{key => Schedule.t()}, %{key => Prediction.t()}) :: [key]
-        when key: {String.t(), String.t(), non_neg_integer}
-  defp unique_map_keys(schedule_map, prediction_map) do
-    schedule_map
-    |> Map.merge(prediction_map)
-    |> Map.keys()
   end
 
   @spec sort_predicted_schedules(PredictedSchedule.t()) ::
