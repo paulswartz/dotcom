@@ -1,0 +1,83 @@
+name: CI
+
+on: [push]
+
+jobs:
+  ci:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Elixir
+      id: elixir
+      uses: actions/setup-elixir@v1
+      with:
+        elixir-version: '1.10.3' # Define the elixir version [required]
+        otp-version: '22.3.3' # Define the OTP version [required]
+    - name: Check Elixir formatting
+      run: mix format --check-formatted
+    - name: Set up NodeJS
+      uses: actions/setup-node@v2
+      with:
+        node-version: "14.15"
+    - name: Restore Elixir dependencies cache
+      id: elixir-deps-cache
+      uses: actions/cache@v2
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+    - name: Install Elixir dependencies
+      run: mix deps.get
+      if: steps.elixir-deps-cache.outputs.cache-hit != 'true'
+    - name: Credo
+      run: bash semaphore/credo.sh
+    - name: Restore NodeJS dependencies cache
+      id: nodejs-deps-cache
+      uses: actions/cache@v2
+      with:
+        path: "apps/site/*/node_modules"
+        key: ${{ runner.os }}-nodejs-${{ hashFiles('apps/site/*/package-lock.json') }}
+        restore-keys: ${{ runner.os }}-nodejs-
+    - name: Install NodeJS dependencies
+      run: npm run install:ci && npm run react:setup:ci
+      if: steps.nodejs-deps-cache.outputs.cache-hit != 'true'
+    - name: JS Formatting
+      run: npm run format:check
+    - name: Stylelint
+      run: npm run stylelint
+    - name: TS Lint
+      run: npm run tslint
+    - name: Build app
+      run: bash semaphore/build_app.sh
+    - name: JS Tests
+      run: npm run test:js
+    - name: Run Elixir tests
+      env:
+        V3_URL: ${{ secrets.V3_URL}}
+        V3_API_KEY: ${{ secrets.V3_API_KEY }}
+        OPEN_TRIP_PLANNER_URL: ${{ secrets.OPEN_TRIP_PLANNER_URL }}
+        RECAPTCHA_PUBLIC_KEY: 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+        RECAPTCHA_PRIVATE_KEY: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+      run: mix coveralls.json -u --exclude=wallaby && bash <(curl -s https://codecov.io/bash)
+    - name: Restore Dialyzer cache
+      id: dialyzer-cache
+      uses: actions/cache@v2
+      with:
+        path: _build/dev/dialyxir*.plt*
+        key: ${{ runner.os }}-dialyxir-${{ steps.elixir.otp-version }}-${{ steps.elixir.elixir-version }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-dialyxir-${{ steps.elixir.otp-version }}-${{ steps.elixir.elixir-version }}-
+          ${{ runner.os }}-dialyxir-${{ steps.elixir.otp-version }}-
+    - name: Dialyzer
+      run: mix dialyzer --halt-exit-status
+    # - name: Wallaby
+    #   env:
+    #     V3_URL: ${{ secrets.V3_URL}}
+    #     V3_API_KEY: ${{ secrets.V3_API_KEY }}
+    #     RECAPTCHA_PUBLIC_KEY: 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+    #     RECAPTCHA_PRIVATE_KEY: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+    #   run: mix test --only wallaby

@@ -5,7 +5,7 @@ function join_by {
   local d=$1; shift; echo -n "$1"; shift; printf "%s" "${@/#/$d}";
 }
 
-fork_point=$(git merge-base --fork-point origin/master)
+fork_point=$(git merge-base --fork-point origin/master $GITHUB_SHA)
 changed=$(git diff --name-only "$fork_point" "*.ex" "*.exs")
 
 if [ -z "$changed" ]; then
