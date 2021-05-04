@@ -67,7 +67,7 @@ jobs:
       run: npm run test:js
     - name: Run Elixir tests
       env:
-        V3_URL: ${{ secrets.V3_URL}}
+        V3_URL: ${{ secrets.V3_URL }}
         V3_API_KEY: ${{ secrets.V3_API_KEY }}
         OPEN_TRIP_PLANNER_URL: ${{ secrets.OPEN_TRIP_PLANNER_URL }}
         RECAPTCHA_PUBLIC_KEY: 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
@@ -82,7 +82,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: elixir-lcov
-        path: coverage/
+        path: cover/
     - uses: mbta/actions/dialyzer@v1
     # - name: Wallaby
     #   env:
