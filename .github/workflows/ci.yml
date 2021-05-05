@@ -73,6 +73,10 @@ jobs:
         RECAPTCHA_PUBLIC_KEY: 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
         RECAPTCHA_PRIVATE_KEY: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
       run: mix test --cover --exclude=wallaby
+    - name: Gather coverage artifacts
+      run: |
+        mkdir coverage
+        cat apps/*/cover/lcov.info > coverage/lcov.info
     - name: Save PR information
       run: |
         echo "${{ github.event.pull_request.number }}" > coverage/PR_NUMBER
@@ -82,7 +86,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: elixir-lcov
-        path: cover/
+        path: coverage/
     - uses: mbta/actions/dialyzer@v1
     # - name: Wallaby
     #   env:
