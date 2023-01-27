@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [master]
+    branches: [master, ps-harden]
   pull_request:
     # Don't bother running if it's just a script or docs change
     paths-ignore:
@@ -59,6 +59,16 @@ jobs:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-all
     - run: npm run ci:lint:scss
+
+  elixiraudit:
+    name: Auditing / Elixir
+    runs-on: ubuntu-20.04
+    needs: file_changes
+    if: ${{ needs.file_changes.outputs.ex }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup-all
+    - run: npm run ci:audit:ex
 
   elixirlint:
     name: Linting / Elixir

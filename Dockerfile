@@ -31,11 +31,12 @@ ARG SENTRY_DSN=""
 # copy in Elixir deps required to build node modules for Phoenix
 COPY --from=elixir-builder /root/deps /root/deps
 
-ADD apps/site/assets /root/apps/site/assets
-
 WORKDIR /root/apps/site/assets/
+ADD apps/site/assets/package.json apps/site/assets/package-lock.json /root/apps/site/assets/
 RUN npm ci
+
 # Create apps/site/priv/static
+ADD apps/site/assets /root/apps/site/assets
 RUN npm run webpack:build -- --env SENTRY_DSN=$SENTRY_DSN
 # Create apps/site/react_renderer/dist/app.js
 RUN npm run webpack:build:react
@@ -70,16 +71,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libssl1.1 libsctp1 curl dumb-init \
 	&& rm -rf /var/lib/apt/lists/*
 
-WORKDIR /root
+RUN adduser --home /work --disabled-password dotcom && \
+    ulimit -n
 
 COPY --from=app-builder /root/_build/prod/rel /root/rel
 COPY --from=assets-builder /root/apps/site/react_renderer/dist/app.js /root/rel/site/app.js
 
 ADD rel/bin/startup /root/rel/site/bin/startup
 
-RUN mkdir /root/work
-
-WORKDIR /root/work
+WORKDIR /work
+USER dotcom
 
 # run the application
 ENTRYPOINT ["/usr/bin/dumb-init"]

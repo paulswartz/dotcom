@@ -64,6 +64,7 @@ defmodule Site.Mixfile do
       {:parallel_stream, "~> 1.0.5"},
       {:bypass, "~> 1.0", only: :test},
       {:dialyxir, ">= 1.0.0-rc.4", only: [:test, :dev], runtime: false},
+      {:sobelow, "~> 0.11.1"},
       {:benchfella, "~> 0.3", only: :dev},
       {:floki, "~> 0.31.0"},
       {:httpoison, "~> 1.5"},
