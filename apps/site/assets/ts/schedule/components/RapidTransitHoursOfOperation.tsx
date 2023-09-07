@@ -11,6 +11,9 @@ import { ScheduleNote, SchedulePDF } from "./__schedule";
 const getSchedule = (
   dataArray: StopHours[][] | StopHours[]
 ): ReactElement<HTMLElement>[] | ReactElement<HTMLElement> => {
+  if (dataArray.length === 0) {
+    return [];
+  }
   const bothDirectionData = concat(dataArray[0], dataArray[1]);
   const filteredData = filter(
     bothDirectionData,
@@ -88,7 +91,7 @@ const RapidTransitHoursOfOperation = ({
           {regularScheduleHTML()}
           {hours && getSchedule(hours.saturday)}
           {!hideScheduleFrequency &&
-            trainsEveryHTML(scheduleNote?.offpeak_service)}
+            trainsEveryHTML(scheduleNote?.saturday_service)}
           <hr
             style={{
               borderBottomWidth: "1px",
@@ -103,7 +106,7 @@ const RapidTransitHoursOfOperation = ({
           {regularScheduleHTML()}
           {hours && getSchedule(hours.sunday)}
           {!hideScheduleFrequency &&
-            trainsEveryHTML(scheduleNote?.offpeak_service)}
+            trainsEveryHTML(scheduleNote?.sunday_service)}
           {pdfLink(pdfs[0])}
         </div>
       </ExpandableBlock>

@@ -211,8 +211,13 @@ defmodule Site.RealtimeSchedule do
   defp do_get_schedules(route_id, stop_id, route_patterns, now, schedules_fn) do
     route_pattern_dictionary = make_route_pattern_dictionary(route_patterns, stop_id)
 
-    [route_id]
-    |> schedules_fn.(min_time: now)
+    schedules =
+      case schedules_fn.([route_id], min_time: now) do
+        {:error, _} -> []
+        schedules -> schedules
+      end
+
+    schedules
     |> Enum.filter(&if Map.has_key?(&1, :stop_id), do: &1.stop_id == stop_id, else: false)
     |> Enum.group_by(& &1.route_pattern_id)
     |> Enum.into(

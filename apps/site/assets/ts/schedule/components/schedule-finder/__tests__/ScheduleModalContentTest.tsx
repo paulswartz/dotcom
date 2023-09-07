@@ -33,7 +33,8 @@ const busRoute: EnhancedRoute = {
 };
 
 const scheduleNoteData = {
-  offpeak_service: "8-12 minutes",
+  saturday_service: "8-12 minutes",
+  sunday_service: "8-12 minutes",
   peak_service: "5 minutes",
   exceptions: [
     { service: "26 minutes", type: "weekend mornings and late night" }
@@ -74,9 +75,10 @@ describe("ScheduleModalContent", () => {
       () =>
         new Promise((resolve: Function) =>
           resolve({
-            json: () => "Internal Server Error",
-            ok: false,
-            status: 200
+            json: () => [{ trip: { id: "yeah" } }],
+            ok: true,
+            status: 200,
+            statusText: "OK"
           })
         )
     );
