@@ -87,7 +87,7 @@ defmodule DotCom.Mixfile do
       # latest version 0.18.0; cannot upgrade because expects castore >= 1
       {:excoveralls, "0.16.1", only: :test},
       {:faker, "0.18.0", only: :test},
-      {:floki, "0.36.1"},
+      {:floki, "== 0.36.2"},
       {:gen_stage, "1.2.1"},
       {:gettext, "0.24.0"},
       {:hackney, "1.20.1"},
