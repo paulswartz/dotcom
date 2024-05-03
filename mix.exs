@@ -85,7 +85,7 @@ defmodule DotCom.Mixfile do
       {:ex_machina, "2.7.0", only: :test},
       {:ex_unit_summary, "0.1.0", only: [:dev, :test]},
       # latest version 0.18.0; cannot upgrade because expects castore >= 1
-      {:excoveralls, "0.16.1", only: :test},
+      {:excoveralls, "== 0.18.1", only: :test},
       {:faker, "0.18.0", only: :test},
       {:floki, "== 0.36.2"},
       {:gen_stage, "1.2.1"},
@@ -93,7 +93,7 @@ defmodule DotCom.Mixfile do
       {:hackney, "1.20.1"},
       {:hammer, "6.2.1"},
       # latest version 1.4.3; cannot upgrade because it changes how we handle telephone links
-      {:html_sanitize_ex, "1.3.0"},
+      {:html_sanitize_ex, "== 1.4.3"},
       # latest version 2.2.1; cannot upgrade because api has changed
       {:httpoison, "1.8.2"},
       {:inflex, "2.1.0"},
@@ -111,7 +111,7 @@ defmodule DotCom.Mixfile do
        ]},
       {:parallel_stream, "1.1.0"},
       # latest version 1.7.11
-      {:phoenix, "1.6.16"},
+      {:phoenix, "== 1.7.12"},
       # latest version 4.1.1; cannot upgrade because we use Phoenix.HTML
       {:phoenix_html, "3.3.3"},
       {:phoenix_live_dashboard, "0.8.3"},
@@ -133,12 +133,12 @@ defmodule DotCom.Mixfile do
        ]},
       {:recase, "0.7.0"},
       {:recon, "2.5.5", [only: :prod]},
-      {:redix, "1.4.1"},
+      {:redix, "== 1.5.0"},
       {:req, "0.4.14", override: true},
       {:rstar, github: "armon/erl-rstar"},
       # latest version 10.1.0; cannot upgrade because setup appears to have changed
       {:sentry, "7.2.5"},
-      {:server_sent_event_stage, "1.1.0"},
+      {:server_sent_event_stage, "== 1.2.0"},
       {:sizeable, "1.0.2"},
       {:sweet_xml, "0.7.4", only: [:prod, :dev]},
       {:telemetry, "1.2.1", override: true},
@@ -147,7 +147,7 @@ defmodule DotCom.Mixfile do
       {:telemetry_poller, "1.1.0"},
       {:telemetry_test, "0.1.2", only: [:test]},
       # latest version is 3.7.11; cannot upgrade because tests fail
-      {:timex, "3.1.24"},
+      {:timex, "== 3.7.11"},
       {:unrooted_polytree, "0.1.1"},
       {:uuid, "1.1.8"},
       {:wallaby, "0.30.6", [runtime: false, only: [:test, :dev]]}

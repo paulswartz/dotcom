@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.42.1-jammy
+FROM mcr.microsoft.com/playwright:v1.43.1-jammy
 
 RUN apt-get update
 RUN apt-get install dumb-init -y

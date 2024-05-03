@@ -24,7 +24,7 @@ ADD . .
 RUN mix deps.get --only prod
 
 # 2) Build the frontend assets within a node.js container instead of installing node/npm
-FROM node:18.17.1-buster as assets-builder
+FROM node:18.20.2-buster as assets-builder
 
 # Stop cypress from downloading it's massive binary.
 ENV CYPRESS_INSTALL_BINARY=0
@@ -60,7 +60,7 @@ RUN mix release
 
 # 4) Use the nodejs container for the runtime environment
 # Since we're server-rendering the React templates, we need a Javascript engine running inside the container.
-FROM node:18.17.1-buster-slim
+FROM node:18.20.2-buster-slim
 
 # Set exposed ports
 EXPOSE 4000
