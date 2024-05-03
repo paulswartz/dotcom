@@ -129,7 +129,7 @@ defmodule DotCom.Mixfile do
       {:recaptcha,
        [
          github: "samueljseay/recaptcha",
-         ref: "8ea13f63990ca18725ac006d30e55d42c3a58457"
+         ref: "71cd746be987f6834c1a933f5d2f934350e55060"
        ]},
       {:recase, "0.7.0"},
       {:recon, "2.5.5", [only: :prod]},
