@@ -79,6 +79,7 @@ jobs:
       with:
         fetch-depth: 0 # needs all data to compare with `main` branch
     - uses: ./.github/actions/setup-all
+    - run: git fetch origin main:main
     - run: npm run ci:lint:ex
 
   elixir_unit:
