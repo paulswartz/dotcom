@@ -3,5 +3,33 @@
   "extends": [
     "config:recommended",
     "group:definitelyTyped"
+  ],
+  "customManagers": [
+    {
+      "description": "this dep is handled by customManagers",
+      "matchPackageNames": ["elixir"],
+      "matchManagers": ["asdf"],
+      "enabled": false
+    },
+    {
+      "description": "this dep is handled by customManagers",
+      "matchPackageNames": ["hexpm/elixir"],
+      "matchManagers": ["dockerfile"],
+      "enabled": false
+    },
+    {
+      "fileMatch": ".tool-versions",
+      "matchStrings": ["elixir (?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "elixir",
+      "datasourceTemplate": "hexpm-bob"
+    },
+    {
+      "fileMatch": ".tool-versions",
+      "matchStrings": ["-otp-(?<currentValue>\\d+)"],
+      "extractVersionTemplate": "^(?<version>\\d+)",
+      "depNameTemplate": "erlang/otp",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose"
+    }
   ]
 }
