@@ -76,7 +76,10 @@ jobs:
     if: ${{ needs.file_changes.outputs.ex }}
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # needs all data to compare with `main` branch
     - uses: ./.github/actions/setup-all
+    - run: git fetch origin main:main
     - run: npm run ci:lint:ex
 
   elixir_unit:
