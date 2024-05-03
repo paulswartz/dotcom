@@ -61,7 +61,7 @@ jobs:
             echo "js=$(changes | grep -E 'assets/js/.*\.jsx?' | xargs)" >> $GITHUB_OUTPUT
             echo "ts=$(changes | grep -E 'assets/ts/.*\.tsx?' | xargs)" >> $GITHUB_OUTPUT
             echo "scss=$(changes | grep -E 'assets/css/.*\.scss' | xargs)" >> $GITHUB_OUTPUT
-            echo "ex=$(changes | grep -E '.*(\.exs?|\.eex)' | xargs)" >> $GITHUB_OUTPUT
+            echo "ex=$(changes | grep -E '.*(\.exs?|\.eex|mix.lock)' | xargs)" >> $GITHUB_OUTPUT
           fi
       - name: "List changed files:"
         run: echo "${{ toJSON(steps.changes.outputs) }}"
