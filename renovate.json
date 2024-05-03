@@ -2,10 +2,11 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    "group:definitelyTyped"
+    "group:definitelyTyped",
+    "group:allNonMajor"
   ],
-  "customManagers": [
-    {
+  "packageRules": [
+{
       "description": "this dep is handled by customManagers",
       "matchPackageNames": ["elixir"],
       "matchManagers": ["asdf"],
@@ -16,7 +17,9 @@
       "matchPackageNames": ["hexpm/elixir"],
       "matchManagers": ["dockerfile"],
       "enabled": false
-    },
+    }
+  ],
+  "customManagers": [
     {
       "fileMatch": ".tool-versions",
       "matchStrings": ["elixir (?<currentValue>\\d+\\.\\d+\\.\\d+)"],
