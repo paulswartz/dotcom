@@ -108,7 +108,7 @@
     "mocha": "^9.2.2",
     "mocha-jsdom": "2.0.0",
     "postcss-loader": "8.1.1",
-    "postcss-preset-env": "9.5.2",
+    "postcss-preset-env": "9.5.11",
     "prettier": "1.19.1",
     "purgecss-webpack-plugin": "^5.0.0",
     "react-test-renderer": "^16.8.6",
