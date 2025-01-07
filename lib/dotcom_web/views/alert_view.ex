@@ -11,6 +11,8 @@ defmodule DotcomWeb.AlertView do
   alias Routes.Route
   alias Stops.Stop
 
+  @type priority_filter :: :any | :blocking | Alerts.Priority.priority_level()
+
   @doc """
 
   Used to render a group of alerts.
@@ -22,12 +24,13 @@ defmodule DotcomWeb.AlertView do
     show_empty? = Keyword.get(opts, :show_empty?, false)
     priority_filter = Keyword.get(opts, :priority_filter, :any)
     timeframe = Keyword.get(opts, :timeframe, nil)
+    date = Keyword.get(opts, :date)
     date_time = Keyword.get(opts, :date_time)
 
     alerts =
       opts
       |> Keyword.fetch!(:alerts)
-      |> Enum.filter(&filter_by_priority(priority_filter, &1))
+      |> Enum.filter(&filter_by_priority(priority_filter, &1, route, date))
       |> deduplicate()
 
     case {alerts, show_empty?} do
@@ -129,14 +132,30 @@ defmodule DotcomWeb.AlertView do
       " at this time."
     ]
 
-  @spec filter_by_priority(boolean, Alert.t()) :: boolean
-  defp filter_by_priority(:any, _), do: true
+  @spec filter_by_priority(
+          priority_filter | [priority_filter()],
+          Alert.t(),
+          Route.t(),
+          Date.t() | nil
+        ) :: boolean
+  defp filter_by_priority(:any, _alert, _route, _date), do: true
 
-  defp filter_by_priority(priority_filter, %{priority: priority})
-       when priority_filter == priority,
+  defp filter_by_priority(priority_filter, %{priority: priority}, _route, _date)
+       when is_atom(priority_filter) and priority_filter == priority,
        do: true
 
-  defp filter_by_priority(_, _), do: false
+  defp filter_by_priority(:blocking, alert, route, date) do
+    Dotcom.TimetableBlocking.blocking_alert([alert], route, date) == alert
+  end
+
+  defp filter_by_priority([_ | _] = priorities, alert, route, date) do
+    Enum.any?(
+      priorities,
+      &filter_by_priority(&1, alert, route, date)
+    )
+  end
+
+  defp filter_by_priority(_filter, _alert, _route_, _datetime), do: false
 
   def effect_name(%{lifecycle: lifecycle} = alert)
       when lifecycle in [:new, :unknown] do

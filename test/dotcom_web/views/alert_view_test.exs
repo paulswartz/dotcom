@@ -188,7 +188,7 @@ defmodule DotcomWeb.AlertViewTest do
 
     test "text for an CR alert which is blocking the timetable (but has a PDF available)" do
       alert = %Alerts.Alert{
-        header: "Blocked timetable. View PDF Timetable on the MBTA website.",
+        header: "Blocked timetable. #{Dotcom.TimetableBlocking.pdf_available_text()}",
         url: "https://www.mbta.com/pdf-timetable",
         updated_at: DateTime.utc_now()
       }
@@ -207,6 +207,51 @@ defmodule DotcomWeb.AlertViewTest do
       refute text =~ "View PDF Timetable on the MBTA website."
       assert text =~ ~s["https://www.mbta.com/pdf-timetable"]
       assert text =~ ">View PDF Timetable</a>"
+    end
+
+    test "shows a blocking alert even if it's low priority" do
+      alert =
+        Alerts.Alert.new(
+          header: "Blocked timetable. #{Dotcom.TimetableBlocking.no_pdf_text()}",
+          priority: :low,
+          updated_at: DateTime.utc_now(),
+          informed_entity: [%Alerts.InformedEntity{route: @route.id}],
+          active_period: [{~U[2025-01-01T00:00:00Z], nil}]
+        )
+
+      response =
+        group(
+          alerts: [alert],
+          route: @route,
+          date_time: DateTime.utc_now(),
+          date: ~D[2025-01-01],
+          priority_filter: [:high, :blocking]
+        )
+
+      text = safe_to_string(response)
+      assert text =~ "Blocked timetable."
+    end
+
+    test "does not show a blocking alert on the wrong date" do
+      alert =
+        Alerts.Alert.new(
+          header: "Blocked timetable. #{Dotcom.TimetableBlocking.no_pdf_text()}",
+          priority: :low,
+          updated_at: DateTime.utc_now(),
+          informed_entity: [%Alerts.InformedEntity{route: @route.id}],
+          active_period: [{~U[2025-02-02T00:00:00Z], nil}]
+        )
+
+      response =
+        group(
+          alerts: [alert],
+          route: @route,
+          date_time: DateTime.utc_now(),
+          date: ~D[2025-01-01],
+          priority_filter: [:high, :blocking]
+        )
+
+      assert response == ""
     end
   end
 
