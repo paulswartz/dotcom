@@ -224,12 +224,35 @@ defmodule DotcomWeb.AlertViewTest do
           alerts: [alert],
           route: @route,
           date_time: DateTime.utc_now(),
-          date: ~D[2025-01-01],
-          priority_filter: [:high, :blocking]
+          priority_filter: :high,
+          always_show: [alert]
         )
 
       text = safe_to_string(response)
       assert text =~ "Blocked timetable."
+    end
+
+    test "shows a blocking alert only once" do
+      alert =
+        Alerts.Alert.new(
+          header: "Blocked timetable. #{Dotcom.TimetableBlocking.no_pdf_text()}",
+          priority: :low,
+          updated_at: DateTime.utc_now(),
+          informed_entity: [%Alerts.InformedEntity{route: @route.id}],
+          active_period: [{~U[2025-01-01T00:00:00Z], nil}]
+        )
+
+      response =
+        group(
+          alerts: [alert],
+          route: @route,
+          date_time: DateTime.utc_now(),
+          always_show: [alert]
+        )
+
+      text = safe_to_string(response)
+      # only one copy of the alert
+      assert [_] = Regex.scan(~r/Blocked timetable/, text)
     end
 
     test "does not show a blocking alert on the wrong date" do
@@ -247,8 +270,8 @@ defmodule DotcomWeb.AlertViewTest do
           alerts: [alert],
           route: @route,
           date_time: DateTime.utc_now(),
-          date: ~D[2025-01-01],
-          priority_filter: [:high, :blocking]
+          priority_filter: :high,
+          always_show: []
         )
 
       assert response == ""

@@ -11,7 +11,7 @@ defmodule DotcomWeb.AlertView do
   alias Routes.Route
   alias Stops.Stop
 
-  @type priority_filter :: :any | :blocking | Alerts.Priority.priority_level()
+  @type priority_filter :: :any | Alerts.Priority.priority_level()
 
   @doc """
 
@@ -24,13 +24,13 @@ defmodule DotcomWeb.AlertView do
     show_empty? = Keyword.get(opts, :show_empty?, false)
     priority_filter = Keyword.get(opts, :priority_filter, :any)
     timeframe = Keyword.get(opts, :timeframe, nil)
-    date = Keyword.get(opts, :date)
     date_time = Keyword.get(opts, :date_time)
 
     alerts =
       opts
       |> Keyword.fetch!(:alerts)
-      |> Enum.filter(&filter_by_priority(priority_filter, &1, route, date))
+      |> Enum.filter(&filter_by_priority(priority_filter, &1))
+      |> then(&(&1 ++ Keyword.get(opts, :always_show, [])))
       |> deduplicate()
 
     case {alerts, show_empty?} do
@@ -49,17 +49,8 @@ defmodule DotcomWeb.AlertView do
     end
   end
 
-  # Workaround handling duplicate Red Line alerts for JFK-Ashmont shuttle
   defp deduplicate(alerts) do
-    alert_ids = Enum.map(alerts, & &1.id)
-    ashmont_shuttle_alert_ids = ["519314", "529291"]
-
-    if Enum.all?(ashmont_shuttle_alert_ids, &Enum.member?(alert_ids, &1)) do
-      # remove the second one
-      Enum.reject(alerts, &(&1.id == "529291"))
-    else
-      alerts
-    end
+    Enum.uniq_by(alerts, & &1.id)
   end
 
   @spec no_alerts_message(map, boolean, atom) :: iolist
@@ -133,29 +124,16 @@ defmodule DotcomWeb.AlertView do
     ]
 
   @spec filter_by_priority(
-          priority_filter | [priority_filter()],
-          Alert.t(),
-          Route.t(),
-          Date.t() | nil
+          priority_filter,
+          Alert.t()
         ) :: boolean
-  defp filter_by_priority(:any, _alert, _route, _date), do: true
+  defp filter_by_priority(:any, _alert), do: true
 
-  defp filter_by_priority(priority_filter, %{priority: priority}, _route, _date)
+  defp filter_by_priority(priority_filter, %{priority: priority})
        when is_atom(priority_filter) and priority_filter == priority,
        do: true
 
-  defp filter_by_priority(:blocking, alert, route, date) do
-    Dotcom.TimetableBlocking.blocking_alert([alert], route, date) == alert
-  end
-
-  defp filter_by_priority([_ | _] = priorities, alert, route, date) do
-    Enum.any?(
-      priorities,
-      &filter_by_priority(&1, alert, route, date)
-    )
-  end
-
-  defp filter_by_priority(_filter, _alert, _route_, _datetime), do: false
+  defp filter_by_priority(_filter, _alert), do: false
 
   def effect_name(%{lifecycle: lifecycle} = alert)
       when lifecycle in [:new, :unknown] do
