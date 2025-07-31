@@ -107,7 +107,7 @@ defmodule DotCom.Mixfile do
       {:open_trip_planner_client,
        [
          github: "thecristen/open_trip_planner_client",
-         ref: "bac452739c732ceebab0762e10bd362a88417a4a"
+         ref: "ca4112f6b2133404b3f99afbf9eaeea6d42c0c21"
        ]},
       {:parallel_stream, "1.1.0"},
       # latest version 1.7.11
