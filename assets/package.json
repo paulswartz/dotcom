@@ -112,7 +112,7 @@
     "prettier": "1.19.1",
     "purgecss-webpack-plugin": "^5.0.0",
     "react-test-renderer": "^16.8.6",
-    "regenerator-runtime": "^0.13.7",
+    "regenerator-runtime": "^0.14.0",
     "sass": "^1.49.7",
     "sass-loader": "14.1.1",
     "sinon": "^4.4.8",
