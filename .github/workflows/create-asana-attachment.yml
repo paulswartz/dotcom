@@ -6,7 +6,7 @@ on:
 
 jobs:
   call-workflow:
-    uses: mbta/workflows/.github/workflows/asana.yml@dc4a2b7bbd2a3c64add4e8511338978698acabb4
+    uses: mbta/workflows/.github/workflows/asana.yml@ead2d40fcc0c546bd6f099a6d8fcd9f9950eab03
     with:
       complete-on-merge: false
       review-section: "Code/Design Review"
