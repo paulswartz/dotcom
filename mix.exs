@@ -66,7 +66,7 @@ defmodule DotCom.Mixfile do
   # Note that you should also update `.github/dependabot.yml` and remove ignore overrides for any dependencies you update.
   defp deps do
     [
-      {:absinthe_client, "0.1.0"},
+      {:absinthe_client, "== 0.1.1"},
       {:benchfella, "0.3.5", [only: :dev]},
       # latest version 1.0.5; cannot upgrade because of server_sent_event_stage expects castore < 1
       {:castore, "0.1.22"},
