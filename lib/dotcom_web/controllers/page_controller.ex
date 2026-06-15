@@ -23,6 +23,7 @@ defmodule DotcomWeb.PageController do
     {promoted, remainder} = whats_happening_items()
     banner = banner()
     fares = fares(conn.query_params)
+    date = conn.assigns.date
 
     conn
     |> assign(
@@ -30,15 +31,14 @@ defmodule DotcomWeb.PageController do
       "Public transit in the Greater Boston region. Routes, schedules, trip planner, fares, " <>
         "service alerts, real-time updates, and general information."
     )
+    |> assign(:banner, banner)
+    |> assign(:homepage_fares, fares)
+    |> assign(:promoted_items, promoted)
+    |> assign(:whats_happening_items, remainder)
     |> async_assign_default(:news, &news/0, [])
-    |> async_assign_default(:banner, fn -> banner end)
-    |> async_assign_default(:homepage_fares, fn -> fares end)
-    |> async_assign_default(:promoted_items, fn -> promoted end)
-    |> async_assign_default(:whats_happening_items, fn -> remainder end)
-    |> async_assign_default(:alerts, fn -> Alerts.Repo.all(conn.assigns.date_time) end)
     |> async_assign_default(
       :event_teasers,
-      fn -> CMS.Repo.next_n_event_teasers(conn.assigns.date, 6) end,
+      fn -> CMS.Repo.next_n_event_teasers(date, 6) end,
       []
     )
     |> await_assign_all_default(__MODULE__)
